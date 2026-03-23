@@ -3,87 +3,314 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>得トレード判定 | Brainrot Trade</title>
     <style>
+        :root {
+            --bg1: #f8f9ff;
+            --bg2: #e6ecff;
+            --card: #ffffff;
+            --card2: #f1f4ff;
+            --line: #d8def5;
+            --text: #222;
+            --mutbg: #f5f7ff;
+            --accent: #007bff;
+            --accent2: #4facfe;
+            --danger: #ff4d4d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #f4f4f9;
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            padding: 20px;
+            color: var(--text);
         }
 
         .container {
             display: flex;
-            width: 100%;
+            width: min(1200px, 100%);
             justify-content: space-around;
-            margin-top: 20px;
+            gap: 20px;
+            align-items: stretch;
         }
 
         .box {
-            width: 45%;
+            width: 100%;
             min-height: 40dvh;
-            border: 2px solid #333;
-            padding: 15px;
-            border-radius: 12px;
-            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+        }
+
+        .box:hover {
+            transform: translateY(-3px);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 1.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #cfd6ea;
+            background: #fff;
+            color: #111;
+            margin-bottom: 10px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px;
+            cursor: pointer;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        #btn-my-open,
+        #btn-his-open {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: #eef3ff;
+            color: #223;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+
+        #btn-my-open:hover,
+        #btn-his-open:hover {
+            background: #dde7ff;
+        }
+
+        #my-list,
+        #his-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .item-row {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
-            background: #eee;
-            padding: 10px;
-            border-radius: 5px;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 12px 12px;
+            background: var(--card2);
+            border: 1px solid #e2e7ff;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+        .item-row:hover {
+            transform: scale(1.01);
+            background: #e7edff;
+        }
+
+        .item-row span {
+            line-height: 1.35;
+        }
+
+        .item-row button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .item-row button:hover {
+            filter: brightness(0.95);
+        }
+
+        #trade {
+            margin-top: 30px;
+            padding: 15px 80px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: linear-gradient(45deg, var(--accent2), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 22px rgba(0, 123, 255, 0.18);
+            transition: 0.25s;
+        }
+
+        #trade:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 28px rgba(0, 123, 255, 0.25);
         }
 
         #result {
-            margin-top: 20px;
-            font-size: 2.5rem;
-            font-weight: bold;
+            margin-top: 22px;
+            font-size: 3rem;
+            font-weight: 800;
             text-align: center;
+            min-height: 4rem;
+            letter-spacing: 0.03em;
         }
 
         #modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
             justify-content: center;
             align-items: center;
             z-index: 100;
+            padding: 16px;
         }
 
         .modal-content {
             background: white;
-            padding: 25px;
-            border-radius: 15px;
-            width: 350px;
-            max-height: 80vh;
+            padding: 22px;
+            border-radius: 18px;
+            width: min(420px, 100%);
+            max-height: 85vh;
             display: flex;
             flex-direction: column;
+            border: 1px solid #e0e6fa;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h3 {
+            margin: 0 0 12px;
+            font-size: 1.2rem;
         }
 
         .mut-group {
-            margin: 15px 0;
-            padding: 10px;
-            border: 1px solid #eee;
+            margin: 12px 0;
+            padding: 12px;
+            border: 1px solid #e3e8f7;
+            border-radius: 14px;
+            background: var(--mutbg);
             overflow-y: auto;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 48vh;
+        }
+
+        .mut-group strong {
+            margin-bottom: 4px;
         }
 
         .mut-group label {
-            display: block;
-            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: white;
+            border: 1px solid #dbe2f7;
             cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
         }
 
-        button {
+        .mut-group label:hover {
+            background: #eef3ff;
+        }
+
+        .mut-group input[type="checkbox"] {
+            transform: scale(1.25);
             cursor: pointer;
+            accent-color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .mut-group label span {
+            line-height: 1.3;
+        }
+
+        .mut-group label:has(input:checked) {
+            background: #dbe8ff;
+            border-color: #8cb0ff;
+        }
+
+        .mut-group label:has(input:checked) span {
+            font-weight: 700;
+            color: #0b57d0;
+        }
+
+        .mut-group::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .mut-group::-webkit-scrollbar-thumb {
+            background: #c3cadc;
+            border-radius: 999px;
+        }
+
+        #modal-confirm {
+            background: linear-gradient(45deg, #2ecc71, #14b86a);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            margin-bottom: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        #modal-confirm:hover {
+            transform: scale(1.01);
+        }
+
+        #modal-cancel {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            background: #e9edf6;
+            border-radius: 10px;
+        }
+
+        #modal-cancel:hover {
+            background: #dfe6f3;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .box {
+                width: 100%;
+            }
+
+            #trade {
+                width: 100%;
+                padding: 15px 24px;
+            }
+
+            #result {
+                font-size: 2.3rem;
+            }
         }
     </style>
 </head>
@@ -105,7 +332,7 @@
         </div>
     </div>
 
-    <button id="trade" style="margin-top:30px; padding:15px 80px; font-size: 1.5rem;">交換！</button>
+    <button id="trade">交換！</button>
     <div id="result"></div>
 
     <div id="modal-overlay">
@@ -116,9 +343,8 @@
             <div class="mut-group" id="extra-mut-container">
                 <strong>突然変異 :</strong>
             </div>
-            <button id="modal-confirm"
-                style="background: #28a745; color: white; width:100%; padding:12px; border:none; margin-bottom:5px; font-weight:bold;">追加</button>
-            <button id="modal-cancel" style="width:100%; padding:10px; border:none;">キャンセル</button>
+            <button id="modal-confirm">追加</button>
+            <button id="modal-cancel">キャンセル</button>
         </div>
     </div>
 
@@ -138,9 +364,8 @@
             { worth: 3, name: "La Taco Combinasion" }, { worth: 3.3, name: "Headless Horseman" },
             { worth: 5, name: "Skibidi Toilet" }, { worth: 5, name: "Meowl" },
             { worth: 5, name: "Strawberry Elephant" }, { worth: 5, name: "Hydra Dragon Cannelloni" },
-            { worth: 2, name: "Popcuru and Fizzuru" }, { worth: 4.3, name: "Love Love Bear" },
-            { worth: 2, name: "Popcuru and Fizzuru" }, { worth: 1, name: "Nacho Spyder" },
-            { worth: 0.3, name: "67" }
+            { worth: 4.3, name: "Love Love Bear" }, { worth: 2, name: "Popcuru and Fizzuru" },
+            { worth: 1, name: "Nacho Spyder" }, { worth: 0.3, name: "67" }
         ];
 
         const BaseMutations = {
@@ -159,85 +384,113 @@
             "花火": 1.78, "ブロフル": 2.0, "バラ": 1.9, "ディスコ": 3.0
         };
 
-        const overlay = document.getElementById('modal-overlay');
-        const baseSelect = document.getElementById('modal-base-mut');
-        const extraContainer = document.getElementById('extra-mut-container');
-        let activeTarget = { select: null, container: null };
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('modal-overlay');
+            const baseSelect = document.getElementById('modal-base-mut');
+            const extraContainer = document.getElementById('extra-mut-container');
+            let activeTarget = { select: null, container: null };
 
-        [document.getElementById('my-select'), document.getElementById('his-select')].forEach(s => {
-            Brainrots.forEach(item => {
+            [document.getElementById('my-select'), document.getElementById('his-select')].forEach(s => {
+                Brainrots.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.name;
+                    opt.textContent = item.name;
+                    s.appendChild(opt);
+                });
+            });
+
+            Object.keys(BaseMutations).forEach(key => {
                 const opt = document.createElement('option');
-                opt.value = item.name; opt.textContent = item.name;
-                s.appendChild(opt);
-            });
-        });
-
-        Object.keys(BaseMutations).forEach(key => {
-            const opt = document.createElement('option');
-            opt.value = BaseMutations[key]; opt.textContent = key;
-            baseSelect.appendChild(opt);
-        });
-
-        Object.keys(ExtraMutations).forEach(key => {
-            const label = document.createElement('label');
-            label.innerHTML = `<input type="checkbox" class="extra-check" data-name="${key}" value="${ExtraMutations[key]}"> ${key}`;
-            extraContainer.appendChild(label);
-        });
-
-        const openModal = (sid, cid) => {
-            activeTarget = { select: document.getElementById(sid), container: document.getElementById(cid) };
-            document.getElementById('modal-item-name').textContent = activeTarget.select.value;
-            overlay.style.display = 'flex';
-        };
-
-        document.getElementById('btn-my-open').onclick = () => openModal('my-select', 'my-list');
-        document.getElementById('btn-his-open').onclick = () => openModal('his-select', 'his-list');
-
-        const closeModal = () => {
-            overlay.style.display = 'none';
-            baseSelect.value = "1";
-            document.querySelectorAll('.extra-check').forEach(c => c.checked = false);
-        };
-
-        document.getElementById('modal-cancel').onclick = closeModal;
-
-        document.getElementById('modal-confirm').onclick = () => {
-            const baseItem = Brainrots.find(i => i.name === activeTarget.select.value);
-            let totalMult = parseFloat(baseSelect.value);
-            let labels = [];
-            const baseText = baseSelect.options[baseSelect.selectedIndex].text;
-            if (baseText !== "通常") labels.push(baseText);
-
-            document.querySelectorAll('.extra-check:checked').forEach(c => {
-                totalMult += parseFloat(c.value);
-                labels.push(c.dataset.name);
+                opt.value = BaseMutations[key];
+                opt.textContent = key;
+                baseSelect.appendChild(opt);
             });
 
-            const finalWorth = baseItem.worth * totalMult;
-            const displayLabel = labels.length ? `[${labels.join('+')}] ` : "";
-            const div = document.createElement("div");
-            div.className = "item-row";
-            div.dataset.worth = finalWorth;
-            div.innerHTML = `<span>${displayLabel}${baseItem.name}</span><button onclick="this.parentElement.remove()">削除</button>`;
-            activeTarget.container.appendChild(div);
-            closeModal();
-        };
+            Object.keys(ExtraMutations).forEach(key => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" class="extra-check" data-name="${key}" value="${ExtraMutations[key]}"><span>${key}</span>`;
+                extraContainer.appendChild(label);
+            });
 
-        document.getElementById('trade').onclick = () => {
-            const calc = (cont) => Array.from(cont.querySelectorAll('.item-row')).reduce((s, el) => s + parseFloat(el.dataset.worth), 0);
-            const myT = calc(document.getElementById('my-list'));
-            const hisT = calc(document.getElementById('his-list'));
-            const diff = hisT - myT;
-            const res = document.getElementById('result');
+            const openModal = (sid, cid) => {
+                activeTarget = {
+                    select: document.getElementById(sid),
+                    container: document.getElementById(cid)
+                };
+                document.getElementById('modal-item-name').textContent = activeTarget.select.value;
+                overlay.style.display = 'flex';
+            };
 
-            if (diff >= 5) { res.textContent = "超絶得！"; res.style.color = "red"; }
-            else if (diff > 0.5) { res.textContent = "めっちゃ得！"; res.style.color = "orange"; }
-            else if (diff > 0) { res.textContent = "ちょっと得。"; res.style.color = "#ffd700"; }
-            else if (diff === 0) { res.textContent = "互角。"; res.style.color = "black"; }
-            else if (diff > -2) { res.textContent = "ちょっと損。"; res.style.color = "blue"; }
-            else { res.textContent = "大損！！"; res.style.color = "purple"; }
-        };
+            const closeModal = () => {
+                overlay.style.display = 'none';
+                baseSelect.value = "1";
+                document.querySelectorAll('.extra-check').forEach(c => c.checked = false);
+            };
+
+            document.getElementById('btn-my-open').onclick = () => openModal('my-select', 'my-list');
+            document.getElementById('btn-his-open').onclick = () => openModal('his-select', 'his-list');
+            document.getElementById('modal-cancel').onclick = closeModal;
+
+            document.getElementById('modal-confirm').onclick = () => {
+                const baseItem = Brainrots.find(i => i.name === activeTarget.select.value);
+                if (!baseItem) return;
+
+                let totalMult = parseFloat(baseSelect.value);
+                let labels = [];
+                const baseText = baseSelect.options[baseSelect.selectedIndex].text;
+                if (baseText !== "通常") labels.push(baseText);
+
+                document.querySelectorAll('.extra-check:checked').forEach(c => {
+                    totalMult += parseFloat(c.value);
+                    labels.push(c.dataset.name);
+                });
+
+                const finalWorth = baseItem.worth * totalMult;
+                const displayLabel = labels.length ? `[${labels.join('+')}] ` : "";
+                const div = document.createElement("div");
+                div.className = "item-row";
+                div.dataset.worth = finalWorth;
+                div.innerHTML = `<span>${displayLabel}${baseItem.name} (${finalWorth.toFixed(2)})</span><button onclick="this.parentElement.remove()">削除</button>`;
+                activeTarget.container.appendChild(div);
+                closeModal();
+            };
+
+            document.getElementById('trade').onclick = () => {
+                const calc = (cont) => Array.from(cont.querySelectorAll('.item-row')).reduce((s, el) => s + parseFloat(el.dataset.worth), 0);
+                const myT = calc(document.getElementById('my-list'));
+                const hisT = calc(document.getElementById('his-list'));
+                const diff = hisT - myT;
+                const res = document.getElementById('result');
+
+                if (myT === 0 && hisT === 0) {
+                    res.textContent = "アイテムを追加してね";
+                    res.style.color = "#333";
+                    return;
+                }
+
+                if (diff >= 5) {
+                    res.textContent = "得すぎる";
+                    res.style.color = "#ff3b3b";
+                } else if (diff > 0.5) {
+                    res.textContent = "超得";
+                    res.style.color = "#ff8800";
+                } else if (diff > 0) {
+                    res.textContent = "得";
+                    res.style.color = "#e6b800";
+                } else if (diff === 0) {
+                    res.textContent = "ちょい損";
+                    res.style.color = "#555";
+                } else if (diff > -2) {
+                    res.textContent = "損トレ";
+                    res.style.color = "#4a90e2";
+                } else {
+                    res.textContent = "損すぎ";
+                    res.style.color = "#6a00ff";
+                }
+            };
+        });
     </script>
 </body>
 
 </html>
+```
