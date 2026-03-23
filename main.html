@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>得トレード判定 | Brainrot Trade</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f4f4f9;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .box {
+            width: 45%;
+            min-height: 40dvh;
+            border: 2px solid #333;
+            padding: 15px;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 350px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mut-group {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .mut-group label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="box">
+            <h1>自分の</h1>
+            <select id="my-select"></select>
+            <button id="btn-my-open">追加...</button>
+            <div id="my-list"></div>
+        </div>
+        <div class="box">
+            <h1>相手の</h1>
+            <select id="his-select"></select>
+            <button id="btn-his-open">追加...</button>
+            <div id="his-list"></div>
+        </div>
+    </div>
+
+    <button id="trade" style="margin-top:30px; padding:15px 80px; font-size: 1.5rem;">交換！</button>
+    <div id="result"></div>
+
+    <div id="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-item-name"></h3>
+            <label>変異:</label>
+            <select id="modal-base-mut"></select>
+            <div class="mut-group" id="extra-mut-container">
+                <strong>突然変異 :</strong>
+            </div>
+            <button id="modal-confirm"
+                style="background: #28a745; color: white; width:100%; padding:12px; border:none; margin-bottom:5px; font-weight:bold;">追加</button>
+            <button id="modal-cancel" style="width:100%; padding:10px; border:none;">キャンセル</button>
+        </div>
+    </div>
+
+    <script>
+        const Brainrots = [
+            { worth: 1.6, name: "Nuclearo Dinossauro" }, { worth: 1.4, name: "Money Money Puggy" },
+            { worth: 1.4, name: "Tang Tang Keletang" }, { worth: 1.6, name: "Ketupat Kepat" },
+            { worth: 1.6, name: "Tictac Sahur" }, { worth: 2, name: "Ketchuru and Musturu" },
+            { worth: 1.74, name: "Lavadorito Spinito" }, { worth: 2.2, name: "Garama and Madundung" },
+            { worth: 3, name: "Burguro And Fryuro" }, { worth: 3.8, name: "Dragon Cannelloni" },
+            { worth: 3, name: "Cerberus" }, { worth: 1, name: "Fragola La La La" },
+            { worth: 1, name: "La Karkerkar Combinasion" }, { worth: 2, name: "Chipso and Queso" },
+            { worth: 1, name: "Los Puggies" }, { worth: 1.8, name: "Swaggy Bros" },
+            { worth: 0.75, name: "Spaghetti Tualetti" }, { worth: 3, name: "Fragrama and Chocrama" },
+            { worth: 3, name: "Spooky and Pumpky" }, { worth: 1.8, name: "Los Bros" },
+            { worth: 3, name: "Los Hotspotsitos" }, { worth: 2, name: "Raccooni Jandelini" },
+            { worth: 3, name: "La Taco Combinasion" }, { worth: 3.3, name: "Headless Horseman" },
+            { worth: 5, name: "Skibidi Toilet" }, { worth: 5, name: "Meowl" },
+            { worth: 5, name: "Strawberry Elephant" }, { worth: 5, name: "Hydra Dragon Cannelloni" },
+            { worth: 2, name: "Popcuru and Fizzuru" }, { worth: 4.3, name: "Love Love Bear" },
+            { worth: 2, name: "Popcuru and Fizzuru" }, { worth: 1, name: "Nacho Spyder" },
+            { worth: 0.3, name: "67" }
+        ];
+
+        const BaseMutations = {
+            "通常": 1.0, "ゴールド": 1.2, "ダイヤ": 1.2, "レインボー": 1.6, "放射線": 2.0,
+            "キャンディー": 1.6, "ディバイン": 1.4, "ギャラクシー": 2.0, "陰陽": 2.0,
+            "血": 2.0, "呪い": 1.6, "溶岩": 1.4
+        };
+
+        const ExtraMutations = {
+            "タコス": 0.5, "カニ": 0.5, "バブルガム": 1.25, "メキシコ": 1.2, "スキビティ": -0.5,
+            "ボンバルディロ": 1.3, "炎": 1.6, "インドネシア": 1.5, "ブラジル": 1.6, "オルカレロ": 1.4,
+            "Nyan Cat": 1.275, "ミャオミャオ": 1.875, "眠り": 2.0, "トゥントゥン": 1.7, "マテオ": 1.6,
+            "蜘蛛": 1.33, "サンタ": 1.75, "ハロウィン": 1.8, "絶滅": 1.85, "ニューイヤー": 1.725,
+            "グリッチ": 1, "シグレテーラ": 1.6, "ストロベリー": 2.0, "雪": 1.42, "チョコレート": 1.55,
+            "ミャウル": 2.0, "魔女": 1.78, "ドゥルドゥル": 1.5, "RIP": 1.7, "10B": 2.0,
+            "花火": 1.78, "ブロフル": 2.0, "バラ": 1.9, "ディスコ": 3.0
+        };
+
+        const overlay = document.getElementById('modal-overlay');
+        const baseSelect = document.getElementById('modal-base-mut');
+        const extraContainer = document.getElementById('extra-mut-container');
+        let activeTarget = { select: null, container: null };
+
+        [document.getElementById('my-select'), document.getElementById('his-select')].forEach(s => {
+            Brainrots.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.name; opt.textContent = item.name;
+                s.appendChild(opt);
+            });
+        });
+
+        Object.keys(BaseMutations).forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = BaseMutations[key]; opt.textContent = key;
+            baseSelect.appendChild(opt);
+        });
+
+        Object.keys(ExtraMutations).forEach(key => {
+            const label = document.createElement('label');
+            label.innerHTML = `<input type="checkbox" class="extra-check" data-name="${key}" value="${ExtraMutations[key]}"> ${key}`;
+            extraContainer.appendChild(label);
+        });
+
+        const openModal = (sid, cid) => {
+            activeTarget = { select: document.getElementById(sid), container: document.getElementById(cid) };
+            document.getElementById('modal-item-name').textContent = activeTarget.select.value;
+            overlay.style.display = 'flex';
+        };
+
+        document.getElementById('btn-my-open').onclick = () => openModal('my-select', 'my-list');
+        document.getElementById('btn-his-open').onclick = () => openModal('his-select', 'his-list');
+
+        const closeModal = () => {
+            overlay.style.display = 'none';
+            baseSelect.value = "1";
+            document.querySelectorAll('.extra-check').forEach(c => c.checked = false);
+        };
+
+        document.getElementById('modal-cancel').onclick = closeModal;
+
+        document.getElementById('modal-confirm').onclick = () => {
+            const baseItem = Brainrots.find(i => i.name === activeTarget.select.value);
+            let totalMult = parseFloat(baseSelect.value);
+            let labels = [];
+            const baseText = baseSelect.options[baseSelect.selectedIndex].text;
+            if (baseText !== "通常") labels.push(baseText);
+
+            document.querySelectorAll('.extra-check:checked').forEach(c => {
+                totalMult += parseFloat(c.value);
+                labels.push(c.dataset.name);
+            });
+
+            const finalWorth = baseItem.worth * totalMult;
+            const displayLabel = labels.length ? `[${labels.join('+')}] ` : "";
+            const div = document.createElement("div");
+            div.className = "item-row";
+            div.dataset.worth = finalWorth;
+            div.innerHTML = `<span>${displayLabel}${baseItem.name}</span><button onclick="this.parentElement.remove()">削除</button>`;
+            activeTarget.container.appendChild(div);
+            closeModal();
+        };
+
+        document.getElementById('trade').onclick = () => {
+            const calc = (cont) => Array.from(cont.querySelectorAll('.item-row')).reduce((s, el) => s + parseFloat(el.dataset.worth), 0);
+            const myT = calc(document.getElementById('my-list'));
+            const hisT = calc(document.getElementById('his-list'));
+            const diff = hisT - myT;
+            const res = document.getElementById('result');
+
+            if (diff >= 5) { res.textContent = "超絶得！"; res.style.color = "red"; }
+            else if (diff > 0.5) { res.textContent = "めっちゃ得！"; res.style.color = "orange"; }
+            else if (diff > 0) { res.textContent = "ちょっと得。"; res.style.color = "#ffd700"; }
+            else if (diff === 0) { res.textContent = "互角。"; res.style.color = "black"; }
+            else if (diff > -2) { res.textContent = "ちょっと損。"; res.style.color = "blue"; }
+            else { res.textContent = "大損！！"; res.style.color = "purple"; }
+        };
+    </script>
+</body>
+
+</html>
