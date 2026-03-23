@@ -361,11 +361,13 @@
             { worth: 0.75, name: "Spaghetti Tualetti" }, { worth: 3, name: "Fragrama and Chocrama" },
             { worth: 3, name: "Spooky and Pumpky" }, { worth: 1.8, name: "Los Bros" },
             { worth: 3, name: "Los Hotspotsitos" }, { worth: 2, name: "Raccooni Jandelini" },
-            { worth: 3, name: "La Taco Combinasion" }, { worth: 3.3, name: "Headless Horseman" },
-            { worth: 5, name: "Skibidi Toilet" }, { worth: 5, name: "Meowl" },
-            { worth: 5, name: "Strawberry Elephant" }, { worth: 5, name: "Hydra Dragon Cannelloni" },
+            { worth: 3, name: "La Taco Combinasion" }, { worth: 20, name: "Headless Horseman" },
+            { worth: 20, name: "Skibidi Toilet" }, { worth: 20, name: "Meowl" },
+            { worth: 20, name: "Strawberry Elephant" }, { worth: 5, name: "Hydra Dragon Cannelloni" },
             { worth: 4.3, name: "Love Love Bear" }, { worth: 2, name: "Popcuru and Fizzuru" },
             { worth: 1, name: "Nacho Spyder" }, { worth: 0.3, name: "67" },
+            { worth: 2.5, name: "Capitano Moby" }, { worth: 2.2, name: "Los Sekolahs" },
+            { worth: 3, name: "La Casa Boo" }, { worth: 1, name: "La Ginger Sekolah" },
             { worth: 1.8, name: "Los Spaghettis" }
         ];
 
@@ -451,7 +453,7 @@
                 const div = document.createElement("div");
                 div.className = "item-row";
                 div.dataset.worth = finalWorth;
-                div.innerHTML = `<span>${displayLabel}${baseItem.name} (${finalWorth.toFixed(2)})</span><button onclick="this.parentElement.remove()">削除</button>`;
+                div.innerHTML = `<span>${displayLabel}${baseItem.name}</span><button onclick="this.parentElement.remove()">削除</button>`;
                 activeTarget.container.appendChild(div);
                 closeModal();
             };
@@ -473,13 +475,13 @@
                     res.textContent = "得すぎる";
                     res.style.color = "#ff3b3b";
                 } else if (diff > 0.5) {
-                    res.textContent = "超得";
+                    res.textContent = "めっちゃ得";
                     res.style.color = "#ff8800";
                 } else if (diff > 0) {
                     res.textContent = "得";
                     res.style.color = "#e6b800";
                 } else if (diff === 0) {
-                    res.textContent = "ちょい損";
+                    res.textContent = "トントン";
                     res.style.color = "#555";
                 } else if (diff > -2) {
                     res.textContent = "損トレ";
@@ -494,4 +496,3 @@
 </body>
 
 </html>
-```
